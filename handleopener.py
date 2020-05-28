@@ -23,3 +23,4 @@ if response <= 0:
 else:
     print(response)
 
+response1=k_handle.TerminateProcess(response,1) #To Check if handle has been indeed opened
