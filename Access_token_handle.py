@@ -1,3 +1,4 @@
+#This program opens a privileged handle to access token of the process
 import ctypes
 from ctypes.wintypes import *
 
