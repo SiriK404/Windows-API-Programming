@@ -1,3 +1,4 @@
+#This code looks up a specific privilege in the system and checks if it is enabled on the access token of a process
 import ctypes
 from ctypes.wintypes import *
 
