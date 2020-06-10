@@ -1,3 +1,4 @@
+#Program for adjusting privileges of task manager process.Customize according to process.
 import ctypes
 from ctypes.wintypes import *
 
@@ -21,6 +22,7 @@ class TOKEN_PRIVILEGES(ctypes.Structure):
     _fields_=[("PrivilegeCount",DWORD),
               ("Privilege",LUID_AND_ATTRIBUTES)
               ]
+#Method to find the given process Window and return a handle(Not a privileged one with accessess)
 
 def Find_Window(u_handle,k_handle):
     WindowName="Task Manager"
@@ -38,6 +40,9 @@ def Find_Window(u_handle,k_handle):
         return hWnd
     else:
         print("Could not grab a handle")
+
+#Method to open a privileged handle (It uses the non Privileged handle obtained from previous function,obtains process id
+#from that and opens a handle with 'PROCESS_ALL_ACCESS' privileges.This function returns a privileged handle to the process.
 
 def Open_Process(u_handle,k_handle,hWnd,PROCESS_ALL_ACCESS):
 
@@ -64,6 +69,8 @@ def Open_Process(u_handle,k_handle,hWnd,PROCESS_ALL_ACCESS):
     else:
        return handle
 
+#Method to open handle to access token of the process with Desired access.This function returns handle to the process token.
+
 def Open_Access_Token_handle(k_handle,a_handle,handle,TOKEN_ALL_ACCESS):
     ProcessHandle=handle
     DesiredAccess=TOKEN_ALL_ACCESS
@@ -75,6 +82,9 @@ def Open_Access_Token_handle(k_handle,a_handle,handle,TOKEN_ALL_ACCESS):
         print("error code {0}".format(k_handle.GetLastError()))
     else:
         return TokenHandle
+
+#This Method Looks up for specific privileges in on the token using handle obtained from previous function.
+#Returns whether a token has a particular privilege enabled/disabled.
 
 def Look_up_Privilege(a_handle,k_handle,luid,privilege_set,Luid_and_attributes,SE_PRIVILEGE_ENABLED,SE_PRIVILEGE_DISABLED,TokenHandle):
     lpSystemName=None
@@ -108,14 +118,19 @@ def Look_up_Privilege(a_handle,k_handle,luid,privilege_set,Luid_and_attributes,S
     if pfResult:
         print("Privilege is Enabled")
         privilege_set.Privilege.Attributes = SE_PRIVILEGE_DISABLED
+        return privilege_set.Privilege.Attributes
 
 
     else:
         print("privilege is not enabled")
         privilege_set.Privilege.Attributes = SE_PRIVILEGE_ENABLED
-#parameters for AdjustTokenPrivileges API call
-def Adjust_Token_Privileges(a_handle,k_handle,luid,privilege_set,Luid_and_attributes,Token_Privileges,SE_PRIVILEGE_ENABLED,TokenHandle):
+        return privilege_set.Privilege.Attributes
 
+
+# Method to adjust token privileges(Flip whatever the set privilege is)
+
+def Adjust_Token_Privileges(a_handle,k_handle,luid,privilege_set,Luid_and_attributes,Token_Privileges,TokenHandle):
+    # parameters for AdjustTokenPrivileges API call
     DisableAllPrivileges=False
     NewState=Token_Privileges
     BufferLength=ctypes.sizeof(NewState)
@@ -136,6 +151,8 @@ def Adjust_Token_Privileges(a_handle,k_handle,luid,privilege_set,Luid_and_attrib
     else:
         print("Adjusted the privileges")
         return
+
+# Main function that sets all the variables and calls all other functions
 
 def Main():
 
@@ -190,11 +207,12 @@ def Main():
     hWnd=Find_Window(u_handle,k_handle)
     handle=Open_Process(u_handle,k_handle,hWnd,PROCESS_ALL_ACCESS)
     TokenHandle=Open_Access_Token_handle(k_handle,a_handle,handle,TOKEN_ALL_ACCESS)
-    Look_up_Privilege(a_handle, k_handle, luid, privilege_set, Luid_and_attributes, SE_PRIVILEGE_ENABLED,
+    privilege_set.Privilege.Attributes = Look_up_Privilege(a_handle, k_handle, luid, privilege_set, Luid_and_attributes, SE_PRIVILEGE_ENABLED,
                       SE_PRIVILEGE_DISABLED, TokenHandle)
+    Adjust_Token_Privileges(a_handle, k_handle, luid, privilege_set, Luid_and_attributes, Token_Privileges,
+                            TokenHandle)
 
     print("successful execution")
-
 
 if __name__ == "__main__":
     Main()
