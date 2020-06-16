@@ -212,7 +212,7 @@ def Create_Process_with_Token(a_handle,k_handle,DuplicateToken):
     lpApplicationName = "C:\Windows\System32\cmd.exe"
     lpCommandLine = None
     dwCreationFlags = 0x00000010
-    lpEnvironment = ctypes.c_void_p()
+    lpEnvironment = None
     lpCurrentDirectory = None
     lpStartupInfo = STRATUPINFO()
     lpProcessInformation = PROCESS_INFORMATION()
