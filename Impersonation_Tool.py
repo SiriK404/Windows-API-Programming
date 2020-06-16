@@ -297,7 +297,8 @@ def Main():
 
     TokenHandle=Open_Access_Token_handle(k_handle,a_handle,handle,TOKEN_ALL_ACCESS)
 
-    #To open a handle to current process
+    #To open a handle to current process.This is done because DuplicateTokenEx cannot be used without SeDebugPrivilege set on current
+    #Process token.
 
     CurrentProcessId=k_handle.GetCurrentProcessId()
 
