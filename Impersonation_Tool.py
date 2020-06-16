@@ -1,4 +1,6 @@
-#Program for adjusting privileges of task manager process.Customize according to process.
+#Program to impersonate a token and open a new process with that token.
+
+
 import ctypes
 from ctypes.wintypes import *
 
